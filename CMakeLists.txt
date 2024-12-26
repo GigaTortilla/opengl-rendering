@@ -6,7 +6,9 @@ set(CMAKE_CXX_STANDARD 23)
 add_executable(opengl_rendering src/main.cpp src/glad.c)
 add_library(opengl_rendering_lib STATIC
         src/utils.cpp include/utils.h
-        src/my_shaders.cpp include/my_shaders.h)
+        src/my_shaders.cpp include/my_shaders.h
+        src/render_programs.cpp
+        include/render_programs.h)
 
 find_library(GLFW3 libglfw.dylib PATHS lib)
 

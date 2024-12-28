@@ -15,8 +15,9 @@ int triangles() {
     GLFWwindow *window = init_window(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL Rendering");
 
     // create shader program from vertex and fragment shader
-    unsigned int shader_program = build_program("tri.vert", "tri.frag");
-    unsigned int shader_green = build_program("tri.vert", "green_tri.frag");
+    unsigned int shader_program = build_program("tri_flip.vert", "tri_variable.frag");
+    unsigned int shader_green = build_program("tri_flip.vert", "green_tri.frag");
+    unsigned int shader_tri = build_program("tri.vert", "tri.frag");
 
     float triangle1[] = {
         -0.55f, -0.3f, 0.0f,
@@ -28,11 +29,22 @@ int triangles() {
          0.05f, -0.3f, 0.0f,
          0.30f,  0.3f, 0.0f
     };
+    float triangle3[] = {
+        -0.3f, -0.7f, 0.0f,
+         0.3f, -0.7f, 0.0f,
+         0.0f, -0.2f, 0.0f
+    };
+    float tex_coords_tri3[] {
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        0.5f, 1.0f
+    };
+    double last_frame = 0.0;
 
     // create vertex buffer objects and vertex array objects
-    unsigned int VBOs[2], VAOs[2];
-    glGenVertexArrays(2, VAOs);
-    glGenBuffers(2, VBOs);
+    unsigned int VBOs[3], VAOs[3];
+    glGenVertexArrays(3, VAOs);
+    glGenBuffers(3, VBOs);
 
     // first triangle
     // 1. bind the VAO
@@ -58,10 +70,19 @@ int triangles() {
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
 
+    // third triangle
+    glBindVertexArray(VBOs[2]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBOs[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle3), triangle3, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+
     glUseProgram(shader_program);
 
     // getting the location of the vertex color uniform in the fragment shader
     int vertex_color_loc = glGetUniformLocation(shader_program, "redVal");
+    int vertex_offset_loc = glGetUniformLocation(shader_program, "offset");
 
     /**
      * Wireframe Mode
@@ -74,8 +95,13 @@ int triangles() {
     while (!glfwWindowShouldClose(window)) {
         process_inputs(window);
 
-        double timeValue = glfwGetTime();
-        auto red = static_cast<float>(0.5f * sin(timeValue * 5.0f) + 0.5f);
+        // Handling time dependent actions using the time difference between the last 2 rendered frames
+        double time_value = glfwGetTime();
+        double delta_time = time_value - last_frame;
+        last_frame = time_value;
+
+        auto red = static_cast<float>(0.5f * sin(time_value * 5.0f) + 0.5f);
+        auto offset = static_cast<float>(sin(time_value * 2.0f) * 0.4f);
 
         // background color^:w
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -91,6 +117,13 @@ int triangles() {
         // second triangle
         glUseProgram(shader_green);
         glBindVertexArray(VAOs[1]);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        glUniform1f(vertex_offset_loc, offset);
+
+        // third triangle
+        glUseProgram(shader_tri);
+        glBindVertexArray(VAOs[2]);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);

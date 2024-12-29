@@ -6,7 +6,11 @@ in vec2 texCoord;
 
 uniform sampler2D texture0;
 uniform sampler2D texture1;
+uniform float blend;
 
 void main() {
-    FragColor = mix(texture(texture0, texCoord), texture(texture1, texCoord), 0.2) * vec4(vertColor, 1.0);
+    // additional options to display the blended texture
+    vec2 flippedTexCoordX = vec2(1.0 - texCoord.s, texCoord.t);
+    vec2 multiTexCoord = texCoord * 2.0;
+    FragColor = mix(texture(texture0, texCoord), texture(texture1, multiTexCoord), blend) * vec4(vertColor, 1.0);
 }

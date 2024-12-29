@@ -180,6 +180,7 @@ int triangles() {
     int vertex_offset_loc = glGetUniformLocation(shader_program, "offset");
 
     glUseProgram(shader_crate);
+    GLint blend_loc = glGetUniformLocation(shader_crate, "blend");
     glUniform1i(glGetUniformLocation(shader_crate, "texture0"), 0);
     glUniform1i(glGetUniformLocation(shader_crate, "texture1"), 1);
 
@@ -189,6 +190,8 @@ int triangles() {
      * GL_LINE - wireframe mode
      */
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    float delta_blend = 0.5f;
 
     // main rendering loop
     while (!glfwWindowShouldClose(window)) {
@@ -201,6 +204,8 @@ int triangles() {
 
         auto red = static_cast<float>(0.5f * sin(time_value * 5.0f) + 0.5f);
         auto offset = static_cast<float>(sin(time_value * 2.0f) * 0.4f);
+        delta_blend += static_cast<float>((glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) ? -0.5f * delta_time :
+            (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) ? 0.5f * delta_time : 0.0f);
 
         // background color^:w
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -234,6 +239,8 @@ int triangles() {
         glUseProgram(shader_crate);
         glBindVertexArray(VAOs[3]);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+        glUniform1f(blend_loc, delta_blend);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

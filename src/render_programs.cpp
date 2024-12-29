@@ -33,8 +33,8 @@ int triangles() {
     ////////////////
     /// Textures ///
     ////////////////
-    GLuint texture[2];
-    glGenTextures(2, texture);
+    GLuint texture[3];
+    glGenTextures(3, texture);
     glBindTexture(GL_TEXTURE_2D, texture[0]);
     // texture parameter (wrapping and filtering) on the currently bound texture
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -66,6 +66,25 @@ int triangles() {
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     stbi_image_free(data);
+
+    // bind the third texture for blending with the second
+    // difference in RGBA because alpha channel is used for transparency in .png
+    // see internalformat of glTexImage2D()
+    glBindTexture(GL_TEXTURE_2D, texture[2]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    stbi_set_flip_vertically_on_load(true);
+    data = stbi_load("../textures/awesomeface.png", &width, &height, &nrChannels, 0);
+    if (data == nullptr) {
+        std::cerr << "Failed to load image\n";
+    } else {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    stbi_image_free(data);
+    stbi_set_flip_vertically_on_load(false);
 
     // triangle coordinates
     float triangle1[] = {
@@ -160,6 +179,10 @@ int triangles() {
     int vertex_color_loc = glGetUniformLocation(shader_program, "redVal");
     int vertex_offset_loc = glGetUniformLocation(shader_program, "offset");
 
+    glUseProgram(shader_crate);
+    glUniform1i(glGetUniformLocation(shader_crate, "texture0"), 0);
+    glUniform1i(glGetUniformLocation(shader_crate, "texture1"), 1);
+
     /**
      * Wireframe Mode
      * GL_FILL - filled shapes
@@ -204,7 +227,10 @@ int triangles() {
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // crate with texture
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture[1]);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture[2]);
         glUseProgram(shader_crate);
         glBindVertexArray(VAOs[3]);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

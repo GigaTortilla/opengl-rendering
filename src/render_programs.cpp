@@ -1,14 +1,24 @@
 //
 // Created by Martin Appel on 26.12.24.
 //
+
+// external dependencies
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+// Standard Library includes
 #include <iostream>
 #include <cmath>
 
+// custom header files
 #include <my_shaders.h>
 #include <render_programs.h>
 #include <utils.h>
+
+// stb image for image loading (textures)
+// Definition required before including stb image to successfully build
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 int triangles() {
     // initialize GLFW window
@@ -17,8 +27,31 @@ int triangles() {
     // create shader program from vertex and fragment shader
     unsigned int shader_program = build_program("tri_flip.vert", "tri_variable.frag");
     unsigned int shader_green = build_program("tri_flip.vert", "green_tri.frag");
-    unsigned int shader_tri = build_program("tri.vert", "tri.frag");
+    unsigned int shader_tex = build_program("tri_tex.vert", "tri_tex.frag");
 
+    ////////////////
+    /// Textures ///
+    ////////////////
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // texture parameter (wrapping and filtering) on the currently bound texture
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load and generate texture from image
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("../textures/wall.jpg", &width, &height, &nrChannels, 0);
+    if (data == nullptr) {
+        std::cerr << "Failed to load image\n";
+    } else {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    stbi_image_free(data);
+
+    // triangle coordinates
     float triangle1[] = {
         -0.55f, -0.3f, 0.0f,
         -0.05f, -0.3f, 0.0f,
@@ -30,14 +63,10 @@ int triangles() {
          0.30f,  0.3f, 0.0f
     };
     float triangle3[] = {
-        -0.3f, -0.7f, 0.0f,
-         0.3f, -0.7f, 0.0f,
-         0.0f, -0.2f, 0.0f
-    };
-    float tex_coords_tri3[] {
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-        0.5f, 1.0f
+        // vertex position  // color values   // texture coords
+        -0.3f, -0.7f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+         0.3f, -0.7f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+         0.0f, -0.2f, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 1.0f
     };
     double last_frame = 0.0;
 
@@ -63,7 +92,7 @@ int triangles() {
     glBindVertexArray(0);
 
     // second triangle
-    glBindVertexArray(VBOs[1]);
+    glBindVertexArray(VAOs[1]);
     glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(triangle2), triangle2, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
@@ -71,11 +100,15 @@ int triangles() {
     glBindVertexArray(0);
 
     // third triangle
-    glBindVertexArray(VBOs[2]);
+    glBindVertexArray(VAOs[2]);
     glBindBuffer(GL_ARRAY_BUFFER, VBOs[2]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(triangle3), triangle3, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void *>(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
     glBindVertexArray(0);
 
     glUseProgram(shader_program);
@@ -122,7 +155,8 @@ int triangles() {
         glUniform1f(vertex_offset_loc, offset);
 
         // third triangle
-        glUseProgram(shader_tri);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glUseProgram(shader_tex);
         glBindVertexArray(VAOs[2]);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 

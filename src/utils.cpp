@@ -9,12 +9,15 @@
 #include <GLFW/glfw3.h>
 #include <utils.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 void process_inputs(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+void framebuffer_size_callback(GLFWwindow *window, const int width, const int height) {
     glViewport(0, 0, width, height);
 }
 
@@ -23,6 +26,20 @@ long get_file_size(FILE *f) {
     long file_size = ftell(f) + 1;
     rewind(f);
     return file_size;
+}
+
+void set_window_icon(GLFWwindow *window, const char *path) {
+    GLFWimage icon;
+    int width, height, channels;
+    icon.pixels = stbi_load(path, &width, &height, &channels, 0);
+    if (icon.pixels) {
+        icon.width = width;
+        icon.height = height;
+        glfwSetWindowIcon(window, 1, &icon);
+    } else {
+        std::cerr << "Failed to load icon at path: " << path << "\n";
+    }
+    stbi_image_free(icon.pixels);
 }
 
 GLFWwindow *init_window(int width, int height, const char *title) {
@@ -48,7 +65,7 @@ GLFWwindow *init_window(int width, int height, const char *title) {
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         std::cerr << "Failed to initialize GLAD\n";
         glfwTerminate();
         return nullptr;

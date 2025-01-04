@@ -69,7 +69,7 @@ unsigned int build_program(const char *vertex_shader_file_name, const char *frag
     if (!success) {
         char info_log[INFO_LOG_SIZE];
         glGetShaderInfoLog(vertex_shader, INFO_LOG_SIZE, nullptr, info_log);
-        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED" << info_log << "\n";
+        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED::" << info_log << "\n";
     }
 
     glCompileShader(fragment_shader);
@@ -77,7 +77,7 @@ unsigned int build_program(const char *vertex_shader_file_name, const char *frag
     if (!success) {
         char info_log[INFO_LOG_SIZE];
         glGetShaderInfoLog(fragment_shader, INFO_LOG_SIZE, nullptr, info_log);
-        std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED" << info_log << "\n";
+        std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED::" << info_log << "\n";
     }
 
     glAttachShader(program, vertex_shader);
@@ -87,7 +87,7 @@ unsigned int build_program(const char *vertex_shader_file_name, const char *frag
     if (!success) {
         char info_log[INFO_LOG_SIZE];
         glGetProgramInfoLog(program, INFO_LOG_SIZE, nullptr, info_log);
-        std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED" << info_log << "\n";
+        std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED::" << info_log << "\n";
     }
 
     glDeleteShader(vertex_shader);

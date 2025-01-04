@@ -33,6 +33,14 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 long get_file_size(FILE *f);
 
 /**
+ * Loads an image as a texture into memory
+ * @param path path to the image file
+ * @param flipped flag determines if the image should be processed with flipped y axis
+ * @return texture location in memory, can be passed to the shader
+ */
+GLuint load_texture(const char *path, bool flipped);
+
+/**
  * Sets the icon of the corresponding window process
  * @param window window for which the icon should be set
  * @param path path to the icon image file

@@ -28,6 +28,35 @@ long get_file_size(FILE *f) {
     return file_size;
 }
 
+GLuint load_texture(const char *path, bool flipped) {
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    // texture parameter
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // load image data
+    int width, height, channels;
+    if (flipped) stbi_set_flip_vertically_on_load(true);
+    unsigned char *data = stbi_load(path, &width, &height, &channels, 0);
+    if (flipped) stbi_set_flip_vertically_on_load(false);
+    if (data == nullptr) {
+        std::cerr << "Failed to load texture: " << path << "\n";
+    } else {
+        if(channels == 3)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        else if(channels == 4)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    stbi_image_free(data);
+    return texture;
+}
+
 void set_window_icon(GLFWwindow *window, const char *path) {
     GLFWimage icon;
     int width, height, channels;

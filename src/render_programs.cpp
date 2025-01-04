@@ -77,57 +77,10 @@ int triangles() {
     /// Textures ///
     ////////////////
     GLuint texture[3];
-    glGenTextures(3, texture);
-    glBindTexture(GL_TEXTURE_2D, texture[0]);
-    // texture parameter (wrapping and filtering) on the currently bound texture
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load and generate texture from image
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("../textures/wall.jpg", &width, &height, &nrChannels, 0);
-    if (data == nullptr) {
-        std::cerr << "Failed to load image\n";
-    } else {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    stbi_image_free(data);
 
-    // bind the second texture
-    glBindTexture(GL_TEXTURE_2D, texture[1]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    data = stbi_load("../textures/container.jpg", &width, &height, &nrChannels, 0);
-    if (data == nullptr) {
-        std::cerr << "Failed to load image\n";
-    } else {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    stbi_image_free(data);
-
-    // bind the third texture for blending with the second
-    // difference in RGBA because alpha channel is used for transparency in .png
-    // see internalformat of glTexImage2D()
-    glBindTexture(GL_TEXTURE_2D, texture[2]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_set_flip_vertically_on_load(true);
-    data = stbi_load("../textures/awesomeface.png", &width, &height, &nrChannels, 0);
-    if (data == nullptr) {
-        std::cerr << "Failed to load image\n";
-    } else {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    stbi_image_free(data);
-    stbi_set_flip_vertically_on_load(false);
+    texture[0] = load_texture("../textures/wall.jpg", false);
+    texture[1] = load_texture("../textures/container.jpg", false);
+    texture[2] = load_texture("../textures/awesomeface.png", true);
 
     // triangle coordinates
     float triangle1[] = {

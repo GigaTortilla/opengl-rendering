@@ -30,7 +30,7 @@ int math_example() {
     double last_frame = 0.0;
 
     GLuint tex_face = load_texture("../textures/awesomeface.png", true);
-    GLuint tex_crate = load_texture("../textures/container.jpg", false);
+    GLuint tex_crate = load_texture("../textures/container.jpg");
 
     int width, height, nrChannels;
     glBindTexture(GL_TEXTURE_2D, tex_crate);
@@ -100,7 +100,7 @@ int math_example() {
         process_inputs(window);
 
         // Handling time dependent actions using the time difference between the last 2 rendered frames
-        double time_value = glfwGetTime();
+        const double time_value = glfwGetTime();
         double delta_time = time_value - last_frame;
         last_frame = time_value;
 
@@ -151,8 +151,8 @@ int triangles() {
     ////////////////
     GLuint texture[3];
 
-    texture[0] = load_texture("../textures/wall.jpg", false);
-    texture[1] = load_texture("../textures/container.jpg", false);
+    texture[0] = load_texture("../textures/wall.jpg");
+    texture[1] = load_texture("../textures/container.jpg");
     texture[2] = load_texture("../textures/awesomeface.png", true);
 
     // triangle coordinates

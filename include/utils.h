@@ -35,10 +35,17 @@ long get_file_size(FILE *f);
 /**
  * Loads an image as a texture into memory
  * @param path path to the image file
- * @param flipped flag determines if the image should be processed with flipped y axis
+ * @param flipped flag determines if the image should be processed with flipped y-axis
  * @return texture location in memory, can be passed to the shader
  */
 GLuint load_texture(const char *path, bool flipped);
+
+/**
+ * Loads an image as a texture into memory
+ * @param path path to the image file
+ * @return texture location in memory, can be passed to the shader
+ */
+GLuint load_texture(const char *path);
 
 /**
  * Sets the icon of the corresponding window process

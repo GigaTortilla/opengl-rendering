@@ -134,6 +134,7 @@ int cubes() {
 
         // background color
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        // set color and depth buffer bit --> depth buffer for only showing the vertices facing the camera
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // get texture for container
@@ -153,11 +154,16 @@ int cubes() {
         glUniformMatrix4fv(view_location, 1, GL_FALSE, &view[0][0]);
         glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
 
+        // render cubes
         glBindVertexArray(VAO);
         for (GLuint i = 0; i < 10; i++) {
             auto model = glm::mat4(1.0f);
+            // move cubes to their positions
             model = glm::translate(model, cube_positions[i]);
-            const float angle = 20.0f * static_cast<float>(i);
+            // rotate cubes differently
+            float angle;
+            if (i % 3 == 0) angle = 25.0f * static_cast<float>(time_value);
+            else angle = 20.0f * static_cast<float>(i);
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             glUniformMatrix4fv(model_location, 1, GL_FALSE, &model[0][0]);
             glDrawArrays(GL_TRIANGLES, 0, 36);

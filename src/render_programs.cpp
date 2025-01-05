@@ -142,11 +142,19 @@ int cubes() {
 
         glUseProgram(shader_program);
 
+        // get window aspect ratio
+        int screen_width, screen_height;
+        glfwGetWindowSize(window, &screen_width, &screen_height);
+        const float aspect_ratio = static_cast<float>(screen_width) / static_cast<float>(screen_height);
+
+        // setting the view and projection matrix every frame
+        // could be done outside the main render loop
         auto view = glm::mat4(1.0f);
-        auto projection = glm::mat4(1.0f);
-        projection = glm::perspective(
-            glm::radians(45.0f),
-            static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT),
+        auto projection = glm::perspective(
+            // field of view
+            glm::radians(60.0f),
+            aspect_ratio,
+            // render depth
             0.1f,
             100.0f
         );

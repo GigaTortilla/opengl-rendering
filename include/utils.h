@@ -63,4 +63,14 @@ void set_window_icon(GLFWwindow *window, const char *path);
  */
 GLFWwindow *init_window(int width, int height, const char *title);
 
+/**
+ * Initializes a GLFW window object for 3D objects
+ * @param width initial window width
+ * @param height initial window height
+ * @param title name of the window process
+ * @return opaque window object
+ */
+GLFWwindow *init_window_3d(int width, int height, const char *title);
+
+
 #endif //UTILS_H

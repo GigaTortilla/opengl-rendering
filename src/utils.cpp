@@ -127,6 +127,38 @@ GLFWwindow *init_window(int width, int height, const char *title) {
         return nullptr;
     }
 
-    //glEnable(GL_DEPTH_TEST);
+    return window;
+}
+
+GLFWwindow *init_window_3d(int width, int height, const char *title) {
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW\n";
+        return nullptr;
+    }
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+    GLFWwindow *window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    if (window == nullptr) {
+        std::cerr << "Failed to create GLFW window.\n";
+        glfwTerminate();
+        return nullptr;
+    }
+
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+        std::cerr << "Failed to initialize GLAD\n";
+        glfwTerminate();
+        return nullptr;
+    }
+
+    glEnable(GL_DEPTH_TEST);
     return window;
 }

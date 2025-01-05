@@ -23,6 +23,157 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+int cubes() {
+    // initialize GLFW window
+    GLFWwindow *window = init_window_3d(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL Rendering");
+
+    double last_frame = 0.0;
+
+    const GLuint tex_crate = load_texture("../textures/container.jpg");
+
+    const GLuint shader_program = build_program("cubes.vert", "cubes.frag");
+
+    constexpr GLsizei stride = 5;
+    constexpr float cube[] = {
+        // model coords		 // texture coords
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    };
+    const glm::vec3 cube_positions[] = {
+        {  0.0f,  0.0f,  0.0f },
+        {  2.0f,  5.0f, -15.0f },
+        { -1.5f, -2.2f, -2.5f },
+        { -3.8f, -2.0f, -12.3f },
+        {  2.4f, -0.4f, -3.5f },
+        { -1.7f,  3.0f, -7.5f },
+        {  1.3f, -2.0f, -2.5f },
+        {  1.5f,  2.0f, -2.5f },
+        {  1.5f,  0.2f, -1.5f },
+        { -1.3f,  1.0f, -1.5f }
+    };
+
+    GLuint VBO, VAO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    // created VAO for the cube model
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), reinterpret_cast<void *>(0));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    // unbind VAO
+    glBindVertexArray(0);
+
+    glUseProgram(shader_program);
+
+    // get uniform locations in memory
+    const GLint model_location = glGetUniformLocation(shader_program, "model");
+    const GLint view_location = glGetUniformLocation(shader_program, "view");
+    const GLint projection_location = glGetUniformLocation(shader_program, "projection");
+
+    // prepare shader for texture input
+    glUniform1i(glGetUniformLocation(shader_program, "texture"), 0);
+
+    /**
+     * Wireframe Mode
+     * GL_FILL - filled shapes
+     * GL_LINE - wireframe mode
+     */
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // main rendering loop
+    while (!glfwWindowShouldClose(window)) {
+        process_inputs(window);
+
+        // Handling time dependent actions using the time difference between the last 2 rendered frames
+        const double time_value = glfwGetTime();
+        double delta_time = time_value - last_frame;
+        last_frame = time_value;
+
+        // background color
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // get texture for container
+        glBindTexture(GL_TEXTURE_2D, tex_crate);
+
+        glUseProgram(shader_program);
+
+        auto view = glm::mat4(1.0f);
+        auto projection = glm::mat4(1.0f);
+        projection = glm::perspective(
+            glm::radians(45.0f),
+            static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT),
+            0.1f,
+            100.0f
+        );
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        glUniformMatrix4fv(view_location, 1, GL_FALSE, &view[0][0]);
+        glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
+
+        glBindVertexArray(VAO);
+        for (GLuint i = 0; i < 10; i++) {
+            auto model = glm::mat4(1.0f);
+            model = glm::translate(model, cube_positions[i]);
+            const float angle = 20.0f * static_cast<float>(i);
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            glUniformMatrix4fv(model_location, 1, GL_FALSE, &model[0][0]);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteProgram(shader_program);
+
+    glfwTerminate();
+    return EXIT_SUCCESS;
+}
+
 int math_example() {
     // initialize GLFW window
     GLFWwindow *window = init_window(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL Rendering");

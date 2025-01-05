@@ -1,5 +1,5 @@
 #include "render_programs.h"
 
 int main() {
-    return triangles();
+    return cubes();
 }

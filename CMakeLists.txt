@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.30)
 project(opengl_rendering)
 
 set(CMAKE_CXX_STANDARD 23)
+option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
 
 add_executable(opengl_rendering src/main.cpp
         src/render_programs.cpp include/render_programs.h)

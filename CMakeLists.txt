@@ -9,7 +9,9 @@ add_executable(opengl_rendering src/main.cpp
 add_library(opengl_rendering_lib SHARED
         src/utils.cpp include/utils.h
         src/my_shaders.cpp include/my_shaders.h
-        src/glad.c)
+        src/glad.c
+        src/Camera.cpp
+        include/Camera.h)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/glfw-3.4)
 add_subdirectory(${PROJECT_SOURCE_DIR}/glm-1.0.1)

@@ -7,6 +7,8 @@
 #include <cstdio>
 #include <GLFW/glfw3.h>
 
+#include "Camera.h"
+
 #define INFO_LOG_SIZE 1024
 #define PATH_SIZE 1024
 
@@ -15,6 +17,8 @@
  * @param window window to be closed on input
  */
 void process_inputs(GLFWwindow *window);
+
+Movement_Direction get_movement_direction(GLFWwindow *window);
 
 /**
  * callback function for window resizing

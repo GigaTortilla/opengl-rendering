@@ -17,6 +17,7 @@
 #include <my_shaders.h>
 #include <render_programs.h>
 #include <utils.h>
+#include <Camera.h>
 
 // stb image for image loading (textures)
 // Definition required before including stb image to successfully build
@@ -123,14 +124,19 @@ int cubes() {
      */
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+    Camera cam = Camera(0.0f, 0.0f, 3.0f, 0.0f, 1.0f, 0.0f, -90.0f, 0.0f);
+
     // main rendering loop
     while (!glfwWindowShouldClose(window)) {
-        process_inputs(window);
-
         // Handling time dependent actions using the time difference between the last 2 rendered frames
         const double time_value = glfwGetTime();
         double delta_time = time_value - last_frame;
         last_frame = time_value;
+
+        process_inputs(window);
+        Movement_Direction cam_dir = get_movement_direction(window);
+        if (cam_dir != NONE)
+            cam.move_camera(static_cast<float>(delta_time), cam_dir);
 
         // background color
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -149,16 +155,15 @@ int cubes() {
 
         // setting the view and projection matrix every frame
         // could be done outside the main render loop
-        auto view = glm::mat4(1.0f);
+        auto view = cam.get_view_mat();
         auto projection = glm::perspective(
             // field of view
-            glm::radians(60.0f),
+            cam.fov,
             aspect_ratio,
             // render depth
             0.1f,
             100.0f
         );
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
         glUniformMatrix4fv(view_location, 1, GL_FALSE, &view[0][0]);
         glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
 
@@ -191,8 +196,6 @@ int cubes() {
 int math_example() {
     // initialize GLFW window
     GLFWwindow *window = init_window(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL Rendering");
-
-    double last_frame = 0.0;
 
     GLuint tex_face = load_texture("../textures/awesomeface.png", true);
     GLuint tex_crate = load_texture("../textures/container.jpg");
@@ -266,8 +269,6 @@ int math_example() {
 
         // Handling time dependent actions using the time difference between the last 2 rendered frames
         const double time_value = glfwGetTime();
-        double delta_time = time_value - last_frame;
-        last_frame = time_value;
 
         auto trans = glm::mat4(1.0f);
         trans = glm::translate(trans, glm::vec3(0.5f * sin(time_value * 2.0f), 0.5f * sin(time_value * 3.0f), 0.0f));

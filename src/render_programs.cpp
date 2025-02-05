@@ -24,9 +24,20 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+auto cam = Camera(0.0f, 0.0f, 3.0f, 0.0f, 1.0f, 0.0f, -90.0f, 0.0f);
+float last_x;
+float last_y;
+bool first_mouse = true;
+
+void mouse_pos_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
 int cubes() {
     // initialize GLFW window
     GLFWwindow *window = init_window_3d(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL Rendering");
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_pos_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     double last_frame = 0.0;
 
@@ -123,8 +134,6 @@ int cubes() {
      * GL_LINE - wireframe mode
      */
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    Camera cam = Camera(0.0f, 0.0f, 3.0f, 0.0f, 1.0f, 0.0f, -90.0f, 0.0f);
 
     // main rendering loop
     while (!glfwWindowShouldClose(window)) {
@@ -490,4 +499,41 @@ int triangles() {
 
     glfwTerminate();
     return EXIT_SUCCESS;
+}
+
+void mouse_pos_callback(GLFWwindow* window, double xpos, double ypos) {
+    auto x = static_cast<float>(xpos);
+    auto y = static_cast<float>(ypos);
+
+    if (first_mouse) {
+        last_x = x;
+        last_y = y;
+        first_mouse = false;
+    }
+
+    float x_offset = x - last_x;
+    float y_offset = last_y - y;
+    last_x = x;
+    last_y = y;
+
+    constexpr float sensitivity = 0.1f;
+    x_offset *= sensitivity;
+    y_offset *= sensitivity;
+
+    cam.yaw += x_offset;
+    cam.pitch += y_offset;
+    if (cam.pitch > 89.0f)
+        cam.pitch = 89.0f;
+    if (cam.pitch < -89.0f)
+        cam.pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(cam.yaw)) * cos(glm::radians(cam.pitch));
+    front.y = sin(glm::radians(cam.pitch));
+    front.z = sin(glm::radians(cam.yaw)) * cos(glm::radians(cam.pitch));
+    cam.front = glm::normalize(front);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    cam.scroll_fov(static_cast<float>(yoffset));
 }

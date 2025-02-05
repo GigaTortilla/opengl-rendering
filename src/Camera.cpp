@@ -49,6 +49,31 @@ void Camera::move_camera(float delta_time, GLFWwindow *window) {
         position -= world_up * movement_speed * delta_time;
 }
 
+void Camera::mouse_movement(float x_offset, float y_offset, bool constrainPitch) {
+    x_offset *= mouse_sensitivity;
+    y_offset *= mouse_sensitivity;
+
+    yaw += x_offset;
+    pitch += y_offset;
+
+    if (constrainPitch) {
+        if (pitch > 89.0)
+            pitch = 89.0;
+        if (pitch < -89.0)
+            pitch = -89.0;
+    }
+
+    update_camera_vectors();
+}
+
+
+void Camera::scroll_fov(float y_offset) {
+    fov -= y_offset;
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 70.0f)
+        fov = 70.0f;
+}
 
 void Camera::update_camera_vectors() {
     glm::vec3 new_front;

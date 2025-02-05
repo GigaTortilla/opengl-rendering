@@ -33,6 +33,8 @@ public:
 
     glm::mat4 get_view_mat() const;
     void move_camera(float delta_time, GLFWwindow *window);
+    void scroll_fov(float y_offset);
+    void mouse_movement(float xoffset, float yoffset, bool constrainPitch = true);
 
 private:
     void update_camera_vectors();

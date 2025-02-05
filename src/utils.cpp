@@ -17,18 +17,6 @@ void process_inputs(GLFWwindow *window) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-Movement_Direction get_movement_direction(GLFWwindow *window) {
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        return FORWARD;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        return BACKWARD;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        return LEFT;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        return RIGHT;
-    return NONE;
-}
-
 void framebuffer_size_callback(GLFWwindow *window, const int width, const int height) {
     glViewport(0, 0, width, height);
 }

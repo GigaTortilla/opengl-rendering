@@ -7,17 +7,11 @@
 
 #include <glm/glm.hpp>
 
+#include "GLFW/glfw3.h"
+
 #define MOVEMENT_SPEED 2.5f
 #define MOUSE_SENSITIVITY 0.1f
 #define FOV 60.0f
-
-enum Movement_Direction {
-    FORWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT,
-    NONE
-};
 
 class Camera {
 public:
@@ -38,7 +32,7 @@ public:
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
 
     glm::mat4 get_view_mat() const;
-    void move_camera(float delta_time, Movement_Direction direction);
+    void move_camera(float delta_time, GLFWwindow *window);
 
 private:
     void update_camera_vectors();

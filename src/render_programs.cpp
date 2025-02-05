@@ -134,9 +134,7 @@ int cubes() {
         last_frame = time_value;
 
         process_inputs(window);
-        Movement_Direction cam_dir = get_movement_direction(window);
-        if (cam_dir != NONE)
-            cam.move_camera(static_cast<float>(delta_time), cam_dir);
+        cam.move_camera(static_cast<float>(delta_time), window);
 
         // background color
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

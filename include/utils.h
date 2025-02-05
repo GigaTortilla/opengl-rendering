@@ -18,8 +18,6 @@
  */
 void process_inputs(GLFWwindow *window);
 
-Movement_Direction get_movement_direction(GLFWwindow *window);
-
 /**
  * callback function for window resizing
  * @param window window attached to the callback function

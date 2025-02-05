@@ -5,6 +5,8 @@
 #include "Camera.h"
 
 #include <glm/glm.hpp>
+
+#include "GLFW/glfw3.h"
 #include "glm/ext/matrix_transform.hpp"
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
@@ -31,23 +33,20 @@ glm::mat4 Camera::get_view_mat() const {
     return glm::lookAt(position, position + front, up);
 }
 
-void Camera::move_camera(float delta_time, Movement_Direction direction) {
-    switch (direction) {
-        case Movement_Direction::FORWARD:
-            position += front * movement_speed * delta_time;
-            break;
-        case Movement_Direction::BACKWARD:
-            position -= front * movement_speed * delta_time;
-            break;
-        case Movement_Direction::LEFT:
-            position -= glm::normalize(glm::cross(front, up)) * movement_speed * delta_time;
-            break;
-        case Movement_Direction::RIGHT:
-            position += glm::normalize(glm::cross(front, up)) * movement_speed * delta_time;
-            break;
-        default:
-            break;
-    }
+void Camera::move_camera(float delta_time, GLFWwindow *window) {
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        position += front * movement_speed * delta_time;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        position -= front * movement_speed * delta_time;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        position -= glm::normalize(glm::cross(front, up)) * movement_speed * delta_time;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        position += glm::normalize(glm::cross(front, up)) * movement_speed * delta_time;
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        position += world_up * movement_speed * delta_time;
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
+        || glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+        position -= world_up * movement_speed * delta_time;
 }
 
 

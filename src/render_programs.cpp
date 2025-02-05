@@ -516,22 +516,7 @@ void mouse_pos_callback(GLFWwindow* window, double xpos, double ypos) {
     last_x = x;
     last_y = y;
 
-    constexpr float sensitivity = 0.1f;
-    x_offset *= sensitivity;
-    y_offset *= sensitivity;
-
-    cam.yaw += x_offset;
-    cam.pitch += y_offset;
-    if (cam.pitch > 89.0f)
-        cam.pitch = 89.0f;
-    if (cam.pitch < -89.0f)
-        cam.pitch = -89.0f;
-
-    glm::vec3 front;
-    front.x = cos(glm::radians(cam.yaw)) * cos(glm::radians(cam.pitch));
-    front.y = sin(glm::radians(cam.pitch));
-    front.z = sin(glm::radians(cam.yaw)) * cos(glm::radians(cam.pitch));
-    cam.front = glm::normalize(front);
+    cam.mouse_movement(x_offset, y_offset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {

@@ -502,8 +502,8 @@ int triangles() {
 }
 
 void mouse_pos_callback(GLFWwindow* window, double xpos, double ypos) {
-    auto x = static_cast<float>(xpos);
-    auto y = static_cast<float>(ypos);
+    const auto x = static_cast<float>(xpos);
+    const auto y = static_cast<float>(ypos);
 
     if (first_mouse) {
         last_x = x;
@@ -511,14 +511,14 @@ void mouse_pos_callback(GLFWwindow* window, double xpos, double ypos) {
         first_mouse = false;
     }
 
-    float x_offset = x - last_x;
-    float y_offset = last_y - y;
+    const float x_offset = x - last_x;
+    const float y_offset = last_y - y;
     last_x = x;
     last_y = y;
 
     cam.mouse_movement(x_offset, y_offset);
 }
 
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    cam.scroll_fov(static_cast<float>(yoffset));
+void scroll_callback(GLFWwindow* window, double x_offset, double y_offset) {
+    cam.scroll_fov(static_cast<float>(y_offset));
 }

@@ -7,8 +7,6 @@
 #include <cstdio>
 #include <GLFW/glfw3.h>
 
-#include "Camera.h"
-
 #define INFO_LOG_SIZE 1024
 #define PATH_SIZE 1024
 
